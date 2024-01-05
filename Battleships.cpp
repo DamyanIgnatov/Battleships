@@ -3,12 +3,12 @@ using namespace std;
 
 const int GRID_SIZE = 10;
 
-char pl1FleetBoard[10][10];
-int pl1ShotBoard[10][10];
+char pl1FleetBoard[GRID_SIZE][GRID_SIZE];
+int pl1ShotBoard[GRID_SIZE][GRID_SIZE];
 
 
-char pl2FleetBoard[10][10];
-int pl2ShotBoard[10][10];
+char pl2FleetBoard[GRID_SIZE][GRID_SIZE];
+int pl2ShotBoard[GRID_SIZE][GRID_SIZE];
 
 
 void initialiseGrids(int gridInt[][GRID_SIZE], char gridChar[][GRID_SIZE]) {
@@ -44,97 +44,92 @@ void printIntShotGrid(int grid[][GRID_SIZE]) {
     }
 }
 
-void placeShips(char FleetGrid[][GRID_SIZE], unsigned const ShipType, unsigned const shipNum) {
-    unsigned beginX, beginY, endX, endY, shipLength;
-    if (ShipType == 1) {
-        cout << "Placing patrol boats: takes up 2 slots" << endl;
-        shipLength = 2;
-    } 
-    else if (ShipType == 2) {
-        cout << "Placing submarine: takes up 3 slots" << endl;
-        shipLength = 3;
-    }
-    else if (ShipType == 3) {
-        cout << "Placing destroyer: takes up 4 slots" << endl;
-        shipLength = 4;
-    }
-    else if(ShipType == 4) {
-        cout << "Placing aircraft carrier: takes up 5 slots" << endl;
-    }
-    else {
-        return;
-    }
+int placeShips(char FleetGrid[][GRID_SIZE], unsigned const shipIndex) {
+    unsigned startX, startY, endX, endY;
+
     cout << "Please enter the coordinates of the ship's ends" << endl;
-    cout << "Start grid space: ";
-    std::cin >> beginX >> beginY;
-    cout << "End grid space: ";
+    cout << "Start grid space (Format: x y): ";
+    std::cin >> startX >> startY;
+    cout << "End grid space (Format: x y): ";
     std::cin >> endX >> endY;
-    while (beginX < 0 || beginX > GRID_SIZE - 1 || beginY < 0 || beginY > GRID_SIZE - 1
-        || endX < 0 || endX > GRID_SIZE - 1 || endY < 0 || endY > GRID_SIZE - 1
-        || (beginX != endX && beginY != endY)
-        || (beginX + ShipType - 1) != endX || (beginY + ShipType - 1) != endY) {
-        cout << "Invalid input" << endl;
-        std::cin >> beginX >> beginY >> endX >> endY;
-    }    
-    if (beginX == endX) {//placing ship vertically
-        for (int i = beginY; i <= endY; i++) {
-            FleetGrid[beginX][i] = shipNum + '0';
-        }
+
+    int isValidCoords = 1;
+    int num1 = endX - startX;
+    int num2 = endY - startY;
+    if(startX < 0 || endX >= GRID_SIZE || startY < 0 || endY >= GRID_SIZE   //-3 0, 3 0 or 10 0, 4 0 - out of bounds
+        || abs(num1) > 4 || abs(num2) > 4                                   //0 0, 0 5 - too long
+        || (startX == endX && startY == endY)                               //1 1 1 1 - too short
+        || (startX != endX && startY != endY)) isValidCoords = 0;           //1 2 2 1 - diagonal/invalid orientation
+
+    if (abs(num1) > 5 || abs(num2) > 5) isValidCoords = -2;
+    while (isValidCoords <= 0) {
+        cout << "Invalid input, please re-enter coordinates" << endl;
+        cout << "Start grid space (Format: x y): ";
+        std::cin >> startX >> startY;
+        cout << "End grid space (Format: x y): ";
+        std::cin >> endX >> endY;
+        num1 = endX - endY;
+        num2 = startX - startY;
+        if (startX > 0 && endX < GRID_SIZE && startY > 0 && endY < GRID_SIZE //0 9 0 9 - OK
+            && abs(num1) <= 4 && abs(num2) <= 4                         //0 0, 0 4 - OK (max length)
+            && (startX == endX && startY != endY                        //1 0, 1 2 - OK (horizontal)
+                || startY == endY && startX != endX)) isValidCoords = 1;//1 3, 3 3 - OK (vertical)
     }
-    else if (beginY == endY) {//placing ship horisontally
-        for (int j = beginX; j <= endX; j++) {
-            FleetGrid[j][beginY] = shipNum + '0';
+
+    if (startX == endX) {//placing ship vertically
+        int num = startY - endY;
+        if (startY > endY) swap(startY, endY);
+        for (unsigned i = startY; i <= endY; i++) {
+            FleetGrid[startX][i] = shipIndex + '0';
         }
+        return(abs(num) + 1);
+    }
+    else if (startY == endY) {//placing ship horisontally
+        int num = startX - endX;
+        if (startX > endX) swap(startX, endX);
+        for (unsigned j = startX; j <= endX; j++) {
+            FleetGrid[j][startY] = shipIndex + '0';
+        }
+        return(abs(num) + 1);
     }
 }
 void placingShipsUI(int playerNumber, int fleetSize, int* fleetHealth, char fleetGrid[][GRID_SIZE]) {
-    int shipSelector;
     cout << "Player "<<playerNumber<<"'s turn:" << endl;
-    cout << "Place:" << endl << "Patrol boat (press 1)" << endl
-        << "Submarine (press 2)" << endl
-        << "Destroyer (press 3)" << endl
-        << "Aircraft carrier (press 4)" << endl;
 
     int index = 0;
     while (index < fleetSize) {
-        cout << "Ship type: ";
-        std::cin >> shipSelector;
-        switch (shipSelector) {
-            case 1: {
-                placeShips(fleetGrid, 1, index);
+        int shipLength = placeShips(fleetGrid, index);
+        switch (shipLength) {
+            case 2: {
                 fleetHealth[index] = 2;
                 cout << "You placed Patrol boat" << endl;
                 cout << "Your fleet currently: " << endl;
                 printCharFleetGrid(fleetGrid);
                 break;
             }
-            case 2: {
-                placeShips(fleetGrid, 2, index);
-                fleetHealth[index] = 3;
-                cout << "Player 1 placed submarine" << endl;
-                cout << "Your fleet currently: " << endl;
-                printCharFleetGrid(fleetGrid);
-                break;
-            }
             case 3: {
-                placeShips(fleetGrid, 3, index);
-                fleetHealth[index] = 4;
-                cout << "Player 1 placed destroyer" << endl;
+                fleetHealth[index] = 3;
+                cout << "You placed submarine" << endl;
                 cout << "Your fleet currently: " << endl;
                 printCharFleetGrid(fleetGrid);
                 break;
             }
             case 4: {
-                placeShips(fleetGrid, 4, index);
+                fleetHealth[index] = 4;
+                cout << "You placed destroyer" << endl;
+                cout << "Your fleet currently: " << endl;
+                printCharFleetGrid(fleetGrid);
+                break;
+            }
+            case 5: {
                 fleetHealth[index] = 5;
-                cout << "Player 1 placed aircraft carrier" << endl;
+                cout << "You placed aircraft carrier" << endl;
                 cout << "Your fleet currently: " << endl;
                 printCharFleetGrid(fleetGrid);
                 break;
             }
             default: {
-                cout << "Invalid input for ship type" << endl;
-                break;
+                cout << "Something went wrong here, please restart or check your inputs" << endl;
                 break;
             }
         }
@@ -142,88 +137,68 @@ void placingShipsUI(int playerNumber, int fleetSize, int* fleetHealth, char flee
         index++;
     }
     cout << "Player " <<playerNumber<< " has finished placing ships" << endl;
-}
-int startGame2Player() {
-    bool hasWinner = false;//variable to end the game
-    int winningPlayer = 0;//at the end of the game has a value -  either 1 or 2
-    initialiseGrids(pl1ShotBoard, pl1FleetBoard);
-    initialiseGrids(pl2ShotBoard, pl2FleetBoard);
-    int turnCount = 1, currentPlayer;
-    while (hasWinner == false) {
-        currentPlayer = (turnCount % 2) + 1;
-        cout << "TURN " << turnCount << endl;
-        cout << "Player " << currentPlayer << endl;
-        if (currentPlayer == 1) {
-            cout << "Your fleet: " << endl;
-            printCharFleetGrid(pl1FleetBoard);
-            cout << endl;
-            cout << "Map of your shots: " << endl;
-            printIntShotGrid(pl1ShotBoard);
-        }
-        else {
-            cout << "Your fleet: " << endl;
-            printCharFleetGrid(pl2FleetBoard);
-            cout << endl;
-            cout << "Map of your shots: " << endl;
-            printIntShotGrid(pl2ShotBoard);
-        }
+    cout << "Your ships' health: "<<endl;
+    for (int i = 0; i < fleetSize; i++) {
+        cout << "Ship " << i << ": " << fleetHealth[i] << " points" << endl;
     }
-    return 1;
+    cout << endl;
+
+}
+
+bool startGame2Player() {
+    //bool hasWinner = false;
+    //int winner = 0;
+    //while (hasWinner == false) {
+    //    cout << "Player 1's fleet and shots" << endl;
+    //}
+    return 0;
 }
 
 int main()
 {
     unsigned menuSelector;  //used for various confirmations and choosing options in the UI
-    int fleetSize;
-    cout << "Welcome to Damyan's Battleships" << endl << 
-        "Would you like to load a previous game (enter 1) or start a new one (enter 2)?" << endl;
+    cout << "Welcome to Damyan's Battleships" << endl;
+    cout << "Would you like to load a previous game (enter 1) or start a new one (enter 2)?" << endl;
 
     std::cin >> menuSelector;
-    while (menuSelector != 1 && menuSelector != 2) {
-        cout << "Invalid input, please enter 1 or 2" << endl;
-        std::cin >> menuSelector;
-    }
-
+    //load game save
     if (menuSelector == 1) {
         menuSelector = 0; //selector resets so it can be used again for something else
         //load from file
         cout << "Not done yet :(";
         return 0;
     }
-
+    //start new game
     else if (menuSelector == 2) {
+
         menuSelector = 0; //selector resets so it can be used again for something else
-        //start new game
         cout << "Do you want to play with a friend on this device (press 1) or play with a simple AI (press 2)" << endl;
-        
         std::cin >> menuSelector;
 
+        //Player vs Player gamemode
         if (menuSelector == 1) {
-            //Player vs Player gamemode
             menuSelector = 0;
 
-            cout << "Before playing, you need to place your ships (Max amount is 16). How many do you want to place? (Fleet size will be equal for both players)" << endl;           
+            cout << "Before playing, you need to place your ships (Max amount is 16). How many do you want to place? (Fleet size will be equal for both players)" << endl;
+            int fleetSize;
             std::cin >> fleetSize;
-            while (fleetSize > 16 && fleetSize < 1) {
+            bool isFleetSizeValid = (fleetSize <= 16 && fleetSize >= 1) ? 1 : 0;
+            while (isFleetSizeValid == 0) {
                 cout << "Invalid input, please enter a number from 1 to 16" << endl;
                 cin >> fleetSize;
+                if (fleetSize <= 16 && fleetSize >= 1) isFleetSizeValid = 1;
             }
             int* pl1FleetHealth = new int[fleetSize];
             int* pl2FleetHealth = new int[fleetSize];
             initialiseGrids(pl1ShotBoard, pl1FleetBoard);
             initialiseGrids(pl2ShotBoard, pl2FleetBoard);
-            initialiseArrays(fleetSize, pl1FleetHealth,pl2FleetHealth);
-            for (int i = 0; i < fleetSize; i++) {
-                cout << pl1FleetHealth[i] << " ";
-            }
-            cout << endl;
+            initialiseArrays(fleetSize, pl1FleetHealth, pl2FleetHealth);
 
             //player 1 place ships:
-            cout << "Player 2, please look away" << endl << endl;
             placingShipsUI(1, fleetSize, pl1FleetHealth, pl1FleetBoard);
             cout << endl;
 
-            cout << "To proceed, Player 1 should look away, player 2 - press 1" << endl;
+            cout << "To proceed, Player 2 - press 1" << endl;
             menuSelector = 0;
             cin >> menuSelector;
             while (menuSelector != 1) {
@@ -235,20 +210,55 @@ int main()
             cout << "Fleet size: " << fleetSize << endl;
             placingShipsUI(2, fleetSize, pl2FleetHealth, pl2FleetBoard);
 
-           /* int winner = startGame2Player();
-            cout << "Player " << winner << " wins this match!";*/
+            menuSelector = 0;
+            cout << "Start game (press 1, player 1 is first) or save game for later (press 2)" << endl;
+            cin >> menuSelector;
+            switch (menuSelector) {
+            case 1: {
+                int winner = startGame2Player();
+                cout << "Player " << winner << " wins this match!";
+
+            }
+            case 2: {
+                cout << "not done yet";
+
+            }
+            default:
+                cout << "Invalid input" << endl;
+                cin >> menuSelector;
+                int isInputValid = (menuSelector == 1 || menuSelector == 2) ? 1 : 0;
+                while (isInputValid == 0) {
+                    cout << "Invalid input: Press 1 to start game or 2 to save" << endl;
+                    cin >> menuSelector;
+                    if (menuSelector == 1 || menuSelector == 2) isInputValid = 1;
+                }
+                break;
+            }
 
             delete[] pl1FleetHealth;
             delete[] pl2FleetHealth;
 
             return 0;
         }
+        //Player vs bot gamemode
         else if (menuSelector == 2) {
-            //Player vs bot gamemode
             cout << "Not done yet :(";
             return 0;
         }
+        //Invalid input handling
+        else {
+            while (menuSelector != 1 && menuSelector != 2) {
+                cout << "Invalid input, please enter 1 or 2" << endl;
+                cin >> menuSelector;
+            }
+        }
+    } 
+    //input handling
+    else {
+        while (menuSelector != 1 && menuSelector != 2) {
+            cout << "Invalid input, please enter 1 or 2" << endl;
+            std::cin >> menuSelector;
+        }
     }
-
-
 }
+
