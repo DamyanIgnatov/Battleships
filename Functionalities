@@ -1,0 +1,26 @@
+So, how to play Damyan's battleships.
+Upon launch the user is greeted to the starting "menu" with two options - load game or start new one.
+If 1 is pressed, the program will start searching for the pair of data files, if it can't find them, then it will end operation
+If files are found (first the game mode, turn number, as well as sizes for the two fleets and the dynamic playing fields are loaded), the program will initialise everything and continue the game, depending on the saved gamemode
+
+If the user starts a new game, first the sizes of the playing field and the amount of ships to be placed need to be set. The playing field can be no less than 3x3 and not more than 10x10. 
+After input, the playing field size is incremented by 1 and set as the size of all playing fields - size+1 is needed for the mandatory coordinate indexes of the playing field.
+
+After visualising the empty playing field, the next prompt is for the amount of ships to be placed by both players - it's maximum value is determined by the size of the playing field and its minimum value is always 1
+If the user tries to enter an invalid number, there is a functioning input validator on all parts of the menu.
+
+After that is game mode selection - player vs player, on the same device (server based multiplayer is in the works) or player vs AI.
+
+After that comes the ship placing - in 2 player mode each player places their ships individually (player 1 is first), while in 1 player mode the AI places automatically with random coordinates.
+Placing a ship works by using the provided grid indexes to the left and right, with the format <valid letter><valid number>
+If a player places a ship out of bounds, diagonally, too long, too short or in any other case invalid, he will have to input coordinates again
+
+After that comes the game itself - the active player can see their ships, the shots they have already chosen, as well as the health of their ships.
+Shooting works the same way as picking a ship - by using the <valid letter><valid number> template.
+On the shot grid one can see if their shot has hit an enemy (indicated with the symbol 'I') or missed ('O')
+If a point of your ships is hit, it will be marked with the symbol 'X'
+
+The game ends when one of the two players's ships are completely destroyed.
+After it has ended, the winner can see how many ships they lost and in how many turns/rounds they won.
+
+And that is pretty much it functionality wise.
