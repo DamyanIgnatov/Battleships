@@ -52,7 +52,7 @@ int setFleetSize(int fieldSize) {
     const int MIN_SIZE = 1;
     const int MAX_SIZE = fieldSize / 2;
     std::cout << "Before playing, you need to place your ships (Max amount is "<< MAX_SIZE << ")" << endl;
-    std::cout<<". How many do you want to place? (Fleet size will be equal for both players)" << endl;
+    std::cout<<"How many do you want to place? (Fleet size will be equal for both players)" << endl;
     int fleetSize;
     while (true) {
         std::cin >> fleetSize;
@@ -519,14 +519,14 @@ int main()
                 placeRandomShip(pl2FleetBoard, playingFieldSize, startX,startY, endX, endY, i);
             }            
 
-            std::cout << "AI\'s fleet:" << endl;
+            /*std::cout << "AI\'s fleet:" << endl;
             printCharFleetGrid(pl2FleetBoard, playingFieldSize);
 
             std::cout << "AI\'s health:" << endl;
             for (int i = 0; i < fleetSize; i++) {
                 std::cout << pl2FleetHealth[i] << " ";
             }
-            std::cout << endl;
+            std::cout << endl;*/
 
             std::cout << "AI has placed their " << fleetSize << " ships" << endl;
             std::cout << "Press 1 to start game or press 2 to save progress" << endl;
