@@ -11,7 +11,7 @@ void printFleetGrid(char** grid, int size) {
     }
     cout << endl;
 }
-void printShotGrid(int** grid, int size) {
+void printShotGrid(char** grid, int size) {
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
             cout << grid[i][j] << " ";
@@ -41,8 +41,8 @@ int countLostShips(int* fleetHealth, int size) {
     return lostShipsCount;
 }
 
-bool shootAt(char** FleetGrid, int* shipHealth, unsigned X, unsigned Y, int** ShotGrid) {
-    ShotGrid[X][Y]++;
+bool shootAt(char** FleetGrid, int* shipHealth, unsigned X, unsigned Y, char** ShotGrid) {
+    ShotGrid[X][Y] = 'X';
     bool hit = false;
     if (FleetGrid[X][Y] != '*') {
         hit = true;
@@ -53,7 +53,7 @@ bool shootAt(char** FleetGrid, int* shipHealth, unsigned X, unsigned Y, int** Sh
 }
 
 void startGame2Player(char** pl1FleetBoard, char** pl2FleetBoard,
-    int** pl1ShotBoard, int** pl2ShotBoard,
+    char** pl1ShotBoard, char** pl2ShotBoard,
     int* pl1Health, int* pl2Health, 
     int fleetSize, int gridSize) {
     bool hasWinner = false;
@@ -61,15 +61,12 @@ void startGame2Player(char** pl1FleetBoard, char** pl2FleetBoard,
     int roundCnt = 1;
     while (hasWinner == false) {
         int currentPlayer = (roundCnt % 2 != 0) ? 1 : 2;
-        int enemy = abs(currentPlayer -= 3);//if current is 1, then it's abs(1 - 3) = abs(-2) = 2
-            //if current is 2, then it's abs(1 - 2) = abs(-1) = 1
-            //Player 1's turn is on odd turns, Player 2's - on even turns;
         char(**currentFleet) = (roundCnt % 2 != 0) ? pl1FleetBoard : pl2FleetBoard;
-        int(**currentShots) = (roundCnt % 2 != 0) ? pl1ShotBoard : pl2ShotBoard;
+        char(**currentShots) = (roundCnt % 2 != 0) ? pl1ShotBoard : pl2ShotBoard;
         int(*currentHealth) = (roundCnt % 2 != 0) ? pl1Health : pl2Health;
-
         int(*enemyHealth) = (roundCnt % 2 != 0) ? pl2Health : pl1Health;
         char(**enemyFleet) = (roundCnt % 2 != 0) ? pl2FleetBoard : pl1FleetBoard;
+
         cout << "Turn " << roundCnt << ": PLAYER " << abs(currentPlayer) << "\'s turn!" << endl;
         cout << "Your fleet:" << endl;
         printFleetGrid(currentFleet, gridSize);
@@ -81,9 +78,11 @@ void startGame2Player(char** pl1FleetBoard, char** pl2FleetBoard,
         printShotGrid(currentShots, gridSize);
         cout << endl;
         cout << "Where do you order cannons to fire? Pick a quadrant on the map" << endl;
-        unsigned X, Y;
+        char charX, charY;
         cout << "Grid space (Format: x y): ";
-        std::cin >> X >> Y;
+        std::cin >> charX >> charY;
+        unsigned X = charX - 'A' + 1;
+        unsigned Y = charY - '0' + 1;
         bool isHit = shootAt(enemyFleet, enemyHealth, X, Y, currentShots);
         if (isHit == true) {
             cout << "Enemy warship at " << X << " " << Y << " hit!" << endl<<endl;
@@ -108,7 +107,7 @@ void startGame2Player(char** pl1FleetBoard, char** pl2FleetBoard,
         cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
         roundCnt++;
     }
-    cout << "The game has ended! The winner is " << winner << ", won in " << roundCnt << " turns";
+    cout << "The game has ended! The winner is " << winner << ", won in " << roundCnt << " turns." << endl;;
     cout << "Thank you for playing Damyan's battleships!" << endl;
     cout << endl;
 }
