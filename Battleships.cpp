@@ -116,8 +116,9 @@ int placeShips(char** FleetGrid, const unsigned gridSize, unsigned const shipInd
 
     int startX = charStartX - 'A' + 1;
     int startY = charStartY - '0' + 1;
+    //in case start coordinates go out of bounds
     while (startX < 0 || startX > gridSize || startY < 0 || startY > gridSize) {
-        std::cout << "Invalid input, re-enter:" << endl;
+        std::cout << "Your input seems to be invalid, please rethink it" << endl;
         std::cout << "Start grid space: ";
         std::cin >> charStartX >> charStartY;
         startX = charStartX - 'A' + 1;
@@ -125,8 +126,9 @@ int placeShips(char** FleetGrid, const unsigned gridSize, unsigned const shipInd
     }
     int endX = charEndX - 'A' + 1;
     int endY = charEndY - '0' + 1;
+    //in case end coordinates go out of bounds
     while (endX < 0 || endX > gridSize || endY < 0 || endY > gridSize) {
-        std::cout << "Invalid input, re-enter" << endl;
+        std::cout << "Your input seems to be invalid, please rethink it" << endl;
         std::cout << "End grid space: ";
         std::cin >> charEndX >> charEndY;
         endX = charEndX - 'A' + 1;
@@ -134,7 +136,6 @@ int placeShips(char** FleetGrid, const unsigned gridSize, unsigned const shipInd
     }
     int num1 = endX - startX;
     int num2 = endY - startY;
-    std::cout << startX << " " << startY << endl << endX << " " << endY << endl;
     bool isValidCoords = true;
 
     if (startX < 0 || endX >= gridSize || startY < 0 || endY >= gridSize    //-3 0, 3 0 or 10 0, 4 0 - out of bounds
@@ -150,16 +151,18 @@ int placeShips(char** FleetGrid, const unsigned gridSize, unsigned const shipInd
 
     while (isValidCoords == false) {
         std::cout << "Your input seems to be invalid, please rethink it" << endl;
-        std::cout << "Start grid space (Format: x y): ";
+        std::cout << "Start grid space: ";
         std::cin >> charStartX >> charStartY;
         while (charStartX < 'A' || charStartX > 'A' + gridSize - 1 || charStartY < '0' || charStartY > '0' + gridSize - 1) {
-            std::cout << "Invalid input, re-enter:" << endl;
+            std::cout << "Your input seems to be invalid, please rethink it" << endl;
+            std::cout << "Start grid space: ";
             std::cin >> charStartX >> charStartY;
         }
         std::cout << "End grid space: ";
         std::cin >> charEndX >> charEndY;
         while (charEndX < 'A' || charEndX > 'A' + gridSize - 1 || charEndY < '0' || charEndY > '0' + gridSize - 1) {
-            std::cout << "Invalid input, re-enter:" << endl;
+            std::cout << "Your input seems to be invalid, please rethink it" << endl;
+            std::cout << "End grid space: ";
             std::cin >> charEndX >> charEndY;
         }
 
@@ -169,7 +172,6 @@ int placeShips(char** FleetGrid, const unsigned gridSize, unsigned const shipInd
         endY = charEndY - '0' + 1;
         num1 = endX - startX;
         num2 = endY - startY;
-        std::cout << startX << " " << startY << endl << endX << " " << endY << endl;
         if (startX > 0 && endX < gridSize && startY > 0 && endY < gridSize  //0 9 0 9 - OK
             && (abs(num1) <= 4 || abs(num2) <= 4)                           //0 0, 0 4 - OK (max length)
             && (startX == endX && startY != endY                            //1 0, 1 2 - OK (horizontal)
@@ -177,7 +179,6 @@ int placeShips(char** FleetGrid, const unsigned gridSize, unsigned const shipInd
             && isSpotFree(FleetGrid, startX, startY, endX, endY)            //placed ship not going over another
             && abs(num1) <= gridSize                                        //placed ship fits into the playing field
             && abs(num2) <= gridSize) {
-            std::cout << "Validating if" << endl;
             isValidCoords = 1;
         }
             
@@ -272,34 +273,74 @@ int main()
     }
     //load game save
     if (menuSelector == 1) {        
-        //load from file
-
-        /*int gamemode = 0, round = 0, fleetSize = 0, playingFieldSize = 0;
+        //load gamemode, round, fleet size and board size from file
+        int gamemode = 0, round = 0, fleetSize = 0, playingFieldSize = 0;
         getSizes(gamemode, round, fleetSize, playingFieldSize);
-        cout << gamemode << round << fleetSize << playingFieldSize << endl;
+        
+        //create the boards
         char** pl1FleetBoard = new char* [playingFieldSize];
+        for (int i = 0; i < playingFieldSize; i++) {
+            pl1FleetBoard[i] = new char[playingFieldSize];
+        }
         char** pl1ShotBoard = new char* [playingFieldSize];
+        for (int i = 0; i < playingFieldSize; i++) {
+            pl1ShotBoard[i] = new char[playingFieldSize];
+        }
         int* pl1FleetHealth = new int[fleetSize];
-        char** pl2FleetBoard = new char* [playingFieldSize];
-        char** pl2ShotBoard = new char* [playingFieldSize];
-        int* pl2FleetHealth = new int[fleetSize];
 
+        char** pl2FleetBoard = new char* [playingFieldSize];
+        for (int i = 0; i < playingFieldSize; i++) {
+            pl2FleetBoard[i] = new char[playingFieldSize];
+        }
+        char** pl2ShotBoard = new char* [playingFieldSize];
+        for (int i = 0; i < playingFieldSize; i++) {
+            pl2ShotBoard[i] = new char[playingFieldSize];
+        }
+        int* pl2FleetHealth = new int[fleetSize];
+        //load all boards and arrays from file
         getBoards(pl1FleetBoard, pl1ShotBoard, pl1FleetHealth, pl2FleetBoard, pl2ShotBoard, pl2FleetHealth,playingFieldSize,fleetSize);
-        cout << "Player 1's fleet:" << endl;
-        printCharFleetGrid(pl1FleetBoard, playingFieldSize);
+
+        if (gamemode == 1) {//2 player mode
+            cout << "2 player mode starting, player " << ((round % 2 != 0) ? 1 : 2) << " is first. Press 1 to continue" << endl;
+            while (true) {
+                cin >> menuSelector;
+                if (cin.fail() || menuSelector != 1) {
+                    cin.clear();
+                    cin.ignore();
+                    cout << "Invalid input, press 1 to continue" << endl;
+                }
+                else break;
+            }
+            startGame2Player(pl1FleetBoard,pl2FleetBoard,pl1ShotBoard,pl2ShotBoard,pl1FleetHealth,pl2FleetHealth,fleetSize,playingFieldSize,round);
+        }
+        else {
+            cout << "Player vs AI mode starting, player " << ((round % 2 != 0) ? 1 : 2) << " is first. Press 1 to continue" << endl;
+            while (true) {
+                cin >> menuSelector;
+                if (cin.fail() || menuSelector != 1) {
+                    cin.clear();
+                    cin.ignore();
+                    cout << "Invalid input, press 1 to continue" << endl;
+                }
+                else break;
+            }
+            startGame1Player(pl1FleetBoard, pl2FleetBoard, pl1ShotBoard, pl2ShotBoard, pl1FleetHealth, pl2FleetHealth, fleetSize, playingFieldSize, round);
+        }
 
         delete[] pl1FleetHealth;
         delete[] pl2FleetHealth;
         deleteCharMatrix(pl1ShotBoard, playingFieldSize);
         deleteCharMatrix(pl2FleetBoard, playingFieldSize);
         deleteCharMatrix(pl2ShotBoard, playingFieldSize);
-        deleteCharMatrix(pl2FleetBoard, playingFieldSize);*/
+        deleteCharMatrix(pl2FleetBoard, playingFieldSize);
         return 0;
     }
 
     //start new game
     if (menuSelector == 2) {           
+        //setting field size
         int playingFieldSize = setFieldSize();
+        //creating and initialising boards
         char** pl1FleetBoard = new char* [playingFieldSize];
         for (int i = 0; i < playingFieldSize; i++) {
             pl1FleetBoard[i] = new char[playingFieldSize];
@@ -355,7 +396,8 @@ int main()
                 }
                 else break;
             }
-            std::cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+            
+            //std::cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
 
             //player 2 placing ships:
             placingShipsUI(2, fleetSize, pl2FleetHealth, pl2FleetBoard, playingFieldSize);
@@ -378,7 +420,7 @@ int main()
                 startGame2Player(pl1FleetBoard,pl2FleetBoard,
                                 pl1ShotBoard,pl2ShotBoard,
                     pl1FleetHealth,pl2FleetHealth, 
-                    fleetSize, playingFieldSize);
+                    fleetSize, playingFieldSize, 1);
                 return 0;
             }
             else {
@@ -515,9 +557,6 @@ int main()
 
             return 0;
         }
-
-
-
     } 
 }
 

@@ -30,7 +30,6 @@ void getBoards(char** pl1Fleet, char** pl1Shots, int* pl1Health, char** pl2Fleet
 		cout << "No save state found" << endl;
 		return;
 	}
-
 	const size_t stringSize = 2;
 	char currentElement[stringSize];
 	//loading player 1 fleet
@@ -38,8 +37,38 @@ void getBoards(char** pl1Fleet, char** pl1Shots, int* pl1Health, char** pl2Fleet
 		for (int j = 0; j < boardSize; j++) {
 			saveFile.getline(currentElement, stringSize);
 			pl1Fleet[i][j] = currentElement[0];
-			cout << pl1Fleet[i][j] << endl;
 		}
+	};
+	//loading player 2 fleet
+	for (int i = 0; i < boardSize; i++) {
+		for (int j = 0; j < boardSize; j++) {
+			saveFile.getline(currentElement, stringSize);
+			pl2Fleet[i][j] = currentElement[0];
+		}
+	}
+	//loading player 1 shots
+	for (int i = 0; i < boardSize; i++) {
+		for (int j = 0; j < boardSize; j++) {
+			saveFile.getline(currentElement, stringSize);
+			pl1Shots[i][j] = currentElement[0];
+		}
+	}
+	//loading player 2 shots
+	for (int i = 0; i < boardSize; i++) {
+		for (int j = 0; j < boardSize; j++) {
+			saveFile.getline(currentElement, stringSize);
+			pl2Shots[i][j] = currentElement[0];
+		}
+	}
+	//loading player 1 health
+	for (int i = 0; i < fleetSize; i++) {
+		saveFile.getline(currentElement, stringSize);
+		pl1Health[i] = currentElement[0] - '0';
+	}
+	//loading player 2 health
+	for (int i = 0; i < fleetSize; i++) {
+		saveFile.getline(currentElement, stringSize);
+		pl2Health[i] = currentElement[0] - '0';
 	}
 }
 

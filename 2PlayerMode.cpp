@@ -28,9 +28,11 @@ void printFleetHealth(int* arr, int size) {
 }
 
 bool isFleetDestroyed(int* fleetHealth, int size) {
-    bool isDestroyed = 1;
+    bool isDestroyed = true;
     for (int i = 0; i < size; i++) {
-        if (fleetHealth[i] != 0) isDestroyed = 0;
+        if (fleetHealth[i] != 0) {
+            isDestroyed = false;
+        }
     }
     return isDestroyed;
 }
@@ -43,29 +45,31 @@ int countLostShips(int* fleetHealth, int size) {
 }
 
 bool shootAt(char** FleetGrid, int* shipHealth, unsigned X, unsigned Y, char** ShotGrid) {
-    ShotGrid[X][Y] = 'X';
     bool hit = false;
     if (FleetGrid[X][Y] != '*') {
         hit = true;
         shipHealth[FleetGrid[X][Y] - '0']--;
         FleetGrid[X][Y] = 'X';
     }
+    if (hit == true) ShotGrid[X][Y] = 'I';//symbol for hit shot
+    else ShotGrid[X][Y] = 'X';//symbol for missed shot
     return hit;
 }
 
 void startGame2Player(char** pl1FleetBoard, char** pl2FleetBoard,
     char** pl1ShotBoard, char** pl2ShotBoard,
     int* pl1Health, int* pl2Health, 
-    int fleetSize, int gridSize) {
-    const int gamemode = 1;
+    int fleetSize, int gridSize,int round) {
+    const int gamemode = 1;//gamemode 1 is 2 player mode, gamemode 2 is 1 player PvE mode
     bool hasWinner = false;
     int winner = 0;
-    int roundCnt = 1;
+    int roundCnt = round;//roundCnt not always starts from zero when loading from a file, rounds are stored and restart
     while (hasWinner == false) {
-        int currentPlayer = (roundCnt % 2 != 0) ? 1 : 2;
+        int currentPlayer = (roundCnt % 2 != 0) ? 1 : 2;//player 1 is on odd turns, player 2 - on even turns
         char(**currentFleet) = (roundCnt % 2 != 0) ? pl1FleetBoard : pl2FleetBoard;
         char(**currentShots) = (roundCnt % 2 != 0) ? pl1ShotBoard : pl2ShotBoard;
         int(*currentHealth) = (roundCnt % 2 != 0) ? pl1Health : pl2Health;
+
         int(*enemyHealth) = (roundCnt % 2 != 0) ? pl2Health : pl1Health;
         char(**enemyFleet) = (roundCnt % 2 != 0) ? pl2FleetBoard : pl1FleetBoard;
 
@@ -81,7 +85,7 @@ void startGame2Player(char** pl1FleetBoard, char** pl2FleetBoard,
         cout << endl;
         cout << "Where do you order cannons to fire? Pick a quadrant on the map" << endl;
         char charX, charY;
-        cout << "Grid space (Format: x y): ";
+        cout << "Grid space: ";
         std::cin >> charX >> charY;
         unsigned X = charX - 'A' + 1;
         unsigned Y = charY - '0' + 1;
@@ -94,7 +98,7 @@ void startGame2Player(char** pl1FleetBoard, char** pl2FleetBoard,
         }
         bool isHit = shootAt(enemyFleet, enemyHealth, X, Y, currentShots);
         if (isHit == true) {
-            cout << "Enemy warship at " << X << " " << Y << " hit!" << endl<<endl;
+            cout << "Enemy warship at " << X << Y << " hit!" << endl<<endl;
         }
         else {
             cout << "The gunners have missed the target" << endl;
@@ -114,13 +118,15 @@ void startGame2Player(char** pl1FleetBoard, char** pl2FleetBoard,
             cin >> continueVal;
         }
         if (continueVal == 1) {
-            cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+            cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";//buffer so you can't see the other player's ships
             roundCnt++;
         }
         else {
             std::cout << "Game saved to file";
+            std::cout << "Thank you for playing Damyan's battleships" << endl;
             int round = roundCnt;
             saveGame(gamemode, round, fleetSize, gridSize, pl1FleetBoard, pl2FleetBoard, pl1ShotBoard, pl2ShotBoard, pl1Health, pl2Health);
+            return;
         }
     }
     cout << "The game has ended! The winner is " << winner << ", won in " << roundCnt << " turns." << endl;;

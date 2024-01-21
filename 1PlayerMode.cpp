@@ -123,9 +123,11 @@ void startGame1Player(char** pl1Fleet, char** pl2Fleet, char** pl1Shots, char** 
                 cout << "\n\n\n\n\n";//a small buffer for readability
             }
             else {
-                std::cout << "Game saved to file";
+                std::cout << "Game saved to file" << endl;
+                std::cout << "Thank you for playing Damyan's battleships" << endl;
                 int round = roundCnt;
                 saveGame(gamemode, round, fleetSize, boardSize, pl1Fleet, pl2Fleet, pl1Shots, pl2Shots, pl1Health, pl2Health);
+                return;
             }
             
 		}
