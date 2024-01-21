@@ -83,6 +83,13 @@ void startGame2Player(char** pl1FleetBoard, char** pl2FleetBoard,
         std::cin >> charX >> charY;
         unsigned X = charX - 'A' + 1;
         unsigned Y = charY - '0' + 1;
+        while (X < 0 || X > gridSize || Y < 0 || Y > gridSize) {
+            std::cout << "Invalid input, re-enter" << endl;
+            std::cout << "End grid space: ";
+            std::cin >> charX >> charY;
+            X = charX - 'A' + 1;
+            Y = charY - '0' + 1;
+        }
         bool isHit = shootAt(enemyFleet, enemyHealth, X, Y, currentShots);
         if (isHit == true) {
             cout << "Enemy warship at " << X << " " << Y << " hit!" << endl<<endl;

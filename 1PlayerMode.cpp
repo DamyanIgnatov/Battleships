@@ -60,21 +60,21 @@ int countLost(int* fleetHealth, int size) {
     return lostShipsCount;
 }
 
-bool shoot(char** FleetGrid, int* shipHealth, unsigned X, unsigned Y, char** ShotGrid) {
-    ShotGrid[X][Y] = 'X';
+bool shoot(char** FleetGrid, int* shipHealth, unsigned X, unsigned Y, char** ShotGrid) {    
     bool hit = false;
     if (FleetGrid[X][Y] != '*') {
         hit = true;
         shipHealth[FleetGrid[X][Y] - '0']--;
         FleetGrid[X][Y] = 'X';
     }
+    if (hit == true) ShotGrid[X][Y] = 'I';//symbol for hit shot
+    else ShotGrid[X][Y] = 'X';//symbol for missed shot
     return hit;
 }
-void startGame1Player(char** pl1Fleet, char** pl2Fleet, char** pl1Shots, char** pl2Shots, int* pl1Health, int* pl2Health, int fleetSize, int boardSize) {
+void startGame1Player(char** pl1Fleet, char** pl2Fleet, char** pl1Shots, char** pl2Shots, int* pl1Health, int* pl2Health, int fleetSize, int boardSize, int round) {
 	bool hasWinner = false;
 	int winner = 0;
-	int roundCnt = 1;
-    cout << "Board size is " << boardSize << endl;
+	int roundCnt = round;
 	while (hasWinner == false) {
 		int currentPlayer = (roundCnt % 2 != 0) ? 1 : 2;
 
@@ -95,9 +95,16 @@ void startGame1Player(char** pl1Fleet, char** pl2Fleet, char** pl1Shots, char** 
             std::cin >> charX >> charY;
             unsigned X = charX - 'A' + 1;
             unsigned Y = charY - '0' + 1;
+            while (X < 0 || X > boardSize || Y < 0 || Y > boardSize) {
+                std::cout << "Invalid input, re-enter" << endl;
+                std::cout << "End grid space: ";
+                std::cin >> charX >> charY;
+                X = charX - 'A' + 1;
+                Y = charY - '0' + 1;
+            }
             bool isHit = shoot(pl2Fleet, pl2Health, X, Y, pl1Shots);
             if (isHit == true) { //hit
-                cout << "Enemy warship at " << X << " " << Y << " hit!" << endl << endl;
+                cout << "Enemy warship at " << charX << charY << " hit!" << endl << endl;
             }
             else { //miss
                 cout << "The gunners have missed the target" << endl;
@@ -119,16 +126,13 @@ void startGame1Player(char** pl1Fleet, char** pl2Fleet, char** pl1Shots, char** 
              const int minValue = 1;
             int randomX = rand() % range + minValue;
             int randomY = rand() % range + minValue;
-            cout << "Initial grid square: " << randomX << " " << randomY << endl;
             while(randomX < 0 || randomY < 0 || randomX > boardSize || randomY > boardSize || pl2Shots[randomX][randomY] != '*') {
                 //regenerate
                 randomX = rand() % range + minValue;
                 randomY = rand() % range + minValue;
-                cout<<"Regenerating: "<< randomX << " " << randomY << endl;
-            }
-            cout << "Final: " << randomX << " " << randomY << endl;
+            }            
             bool isHit = shoot(pl1Fleet, pl1Health, randomX, randomY, pl2Shots);
-            cout << "AI shoots at " << randomX <<" " << randomY << endl;
+            cout << "AI shoots at " << (char)(randomX + 'A' - 1) << " " << (char)(randomY + '0' + 1) << endl;
             if (isHit == 1) cout << "One of your ships is hit!" << endl;
             else cout << "They missed" << endl;
         }
