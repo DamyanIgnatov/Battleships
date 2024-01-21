@@ -1,6 +1,7 @@
 #include <iostream>
 #include <ctime>
 #include <cstdlib> 
+#include "Files.h"
 using namespace std;
 
 void placeRandomShip(char** fleetGrid, int gridSize, int startX, int startY, int endX, int endY, int index) {
@@ -72,6 +73,7 @@ bool shoot(char** FleetGrid, int* shipHealth, unsigned X, unsigned Y, char** Sho
     return hit;
 }
 void startGame1Player(char** pl1Fleet, char** pl2Fleet, char** pl1Shots, char** pl2Shots, int* pl1Health, int* pl2Health, int fleetSize, int boardSize, int round) {
+    const int gamemode = 2;
 	bool hasWinner = false;
 	int winner = 0;
 	int roundCnt = round;
@@ -111,13 +113,21 @@ void startGame1Player(char** pl1Fleet, char** pl2Fleet, char** pl1Shots, char** 
             }
             //end current turn
             int continueVal;
-            cout << "If you wish to end your turn, press 1 and look away!" << endl;
+            cout << "If you wish to end your turn, press 1, to save current progress, press 2" << endl;
             cin >> continueVal;
-            while (continueVal != 1) {
-                cout << "Invalid input: Press 1 to end your turn." << endl;
+            while (continueVal != 1 && continueVal != 2) {
+                cout << "Invalid input: Press 1 to end your turn, Press 2 to save progress." << endl;
                 cin >> continueVal;
             }
-            cout << "\n\n\n\n\n";
+            if (continueVal == 1) {
+                cout << "\n\n\n\n\n";//a small buffer for readability
+            }
+            else {
+                std::cout << "Game saved to file";
+                int round = roundCnt;
+                saveGame(gamemode, round, fleetSize, boardSize, pl1Fleet, pl2Fleet, pl1Shots, pl2Shots, pl1Health, pl2Health);
+            }
+            
 		}
         else {
             //generate random grid square, that has not been already chosen

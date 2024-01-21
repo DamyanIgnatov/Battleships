@@ -1,4 +1,5 @@
 #include <iostream>
+#include "Files.h"
 using namespace std;
 
 
@@ -56,6 +57,7 @@ void startGame2Player(char** pl1FleetBoard, char** pl2FleetBoard,
     char** pl1ShotBoard, char** pl2ShotBoard,
     int* pl1Health, int* pl2Health, 
     int fleetSize, int gridSize) {
+    const int gamemode = 1;
     bool hasWinner = false;
     int winner = 0;
     int roundCnt = 1;
@@ -105,14 +107,21 @@ void startGame2Player(char** pl1FleetBoard, char** pl2FleetBoard,
             break;
         }
         int continueVal;
-        cout << "If you wish to end your turn, press 1 and look away!" << endl;
+        cout << "If you wish to end your turn, press 1, to save your game, press 2." << endl;
         cin >> continueVal;
         while (continueVal != 1) {
             cout << "Invalid input: Press 1 to end your turn." << endl;
             cin >> continueVal;
         }
-        cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
-        roundCnt++;
+        if (continueVal == 1) {
+            cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+            roundCnt++;
+        }
+        else {
+            std::cout << "Game saved to file";
+            int round = roundCnt;
+            saveGame(gamemode, round, fleetSize, gridSize, pl1FleetBoard, pl2FleetBoard, pl1ShotBoard, pl2ShotBoard, pl1Health, pl2Health);
+        }
     }
     cout << "The game has ended! The winner is " << winner << ", won in " << roundCnt << " turns." << endl;;
     cout << "Thank you for playing Damyan's battleships!" << endl;

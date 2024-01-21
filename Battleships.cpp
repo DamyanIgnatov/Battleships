@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include "2PlayerMode.h" 
 #include "1PlayerMode.h"
+#include "Files.h"
 using namespace std;
 
 void initialiseGrids(char** shotGrid, char** fleetGrid, int size) {
@@ -272,12 +273,32 @@ int main()
     //load game save
     if (menuSelector == 1) {        
         //load from file
-        std::cout << "Game loading from save, home screen. Not done yet.";
+
+        /*int gamemode = 0, round = 0, fleetSize = 0, playingFieldSize = 0;
+        getSizes(gamemode, round, fleetSize, playingFieldSize);
+        cout << gamemode << round << fleetSize << playingFieldSize << endl;
+        char** pl1FleetBoard = new char* [playingFieldSize];
+        char** pl1ShotBoard = new char* [playingFieldSize];
+        int* pl1FleetHealth = new int[fleetSize];
+        char** pl2FleetBoard = new char* [playingFieldSize];
+        char** pl2ShotBoard = new char* [playingFieldSize];
+        int* pl2FleetHealth = new int[fleetSize];
+
+        getBoards(pl1FleetBoard, pl1ShotBoard, pl1FleetHealth, pl2FleetBoard, pl2ShotBoard, pl2FleetHealth,playingFieldSize,fleetSize);
+        cout << "Player 1's fleet:" << endl;
+        printCharFleetGrid(pl1FleetBoard, playingFieldSize);
+
+        delete[] pl1FleetHealth;
+        delete[] pl2FleetHealth;
+        deleteCharMatrix(pl1ShotBoard, playingFieldSize);
+        deleteCharMatrix(pl2FleetBoard, playingFieldSize);
+        deleteCharMatrix(pl2ShotBoard, playingFieldSize);
+        deleteCharMatrix(pl2FleetBoard, playingFieldSize);*/
         return 0;
     }
 
     //start new game
-    else if (menuSelector == 2) {           
+    if (menuSelector == 2) {           
         int playingFieldSize = setFieldSize();
         char** pl1FleetBoard = new char* [playingFieldSize];
         for (int i = 0; i < playingFieldSize; i++) {
@@ -319,7 +340,7 @@ int main()
             }
             else break;
         }
-
+        int gamemode = menuSelector;
         //Player vs Player gamemode
         if (menuSelector == 1) {            
             //player 1 place ships:
@@ -361,8 +382,9 @@ int main()
                 return 0;
             }
             else {
-                std::cout << "This is the saving game UI, not done yet";
-                return 0;
+                std::cout << "Game saved to file";
+                int round = 0;//saving game before it has started
+                saveGame(gamemode, round, fleetSize, playingFieldSize, pl1FleetBoard, pl2FleetBoard, pl1ShotBoard, pl2ShotBoard, pl1FleetHealth, pl2FleetHealth);
             }
 
             delete[] pl1FleetHealth;
@@ -379,13 +401,12 @@ int main()
         else if (menuSelector == 2) {
             placingShipsUI(1, fleetSize, pl1FleetHealth, pl1FleetBoard, playingFieldSize);
             std::cout << "Ship placement ended! When you wish to continue, press 1" << endl;            
-            std::cin >> menuSelector;
             while (true) {
                 std::cin>>menuSelector;
                 if (std::cin.fail() || menuSelector != 1) {
                     std::cin.clear();
                     std::cin.ignore();
-                    std::cout << "Invalid input, please enter 1 or 2" << endl;
+                    std::cout << "Invalid input, please enter 1" << endl;
                 }
                 else break;
             }         
@@ -480,7 +501,9 @@ int main()
                 startGame1Player(pl1FleetBoard, pl2FleetBoard, pl1ShotBoard, pl2ShotBoard, pl1FleetHealth, pl2FleetHealth, fleetSize, playingFieldSize, 1);
             }
             else {
-                cout << "This is for in-session saving, not done" << endl;                
+                std::cout << "Game saved to file";
+                int round = 0;//saving game before it has started
+                saveGame(gamemode, round, fleetSize, playingFieldSize, pl1FleetBoard, pl2FleetBoard, pl1ShotBoard, pl2ShotBoard, pl1FleetHealth, pl2FleetHealth);
             }
 
             delete[] pl1FleetHealth;
